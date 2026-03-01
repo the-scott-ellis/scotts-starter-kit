@@ -90,20 +90,46 @@ Clerk webhooks point to Convex HTTP endpoint (see `convex/http.ts`):
 - Events to add: `organization.created`, `organization.updated`
 - Events: `paymentAttempt.updated`
 
-### Convex Schema Tables
-- `users` — synced from Clerk user webhooks
-- `organizations` — synced from Clerk org webhooks (Phase 2)
-- `projects` — example org-scoped CRUD resource (Phase 3)
-- `chatMessages` — AI chat persistence (Phase 5)
-- `paymentAttempts` — payment tracking (existing)
+### Convex Schema
+
+All FK values are **Clerk string IDs**, not Convex document IDs. `orgId` on every org-scoped table equals `organizations.clerkOrgId`.
+
+```mermaid
+erDiagram
+    organizations {
+        string clerkOrgId PK
+        string name
+        string slug
+        string plan "optional - Stripe escape hatch"
+    }
+    users {
+        string externalId PK
+        string name
+        string email
+    }
+    projects {
+        string orgId FK
+        string createdBy FK
+        string name
+        string status
+    }
+    chatMessages {
+        string orgId FK
+        string userId FK
+        string conversationId
+        string role
+        string content
+    }
+    paymentAttempts {
+        string payment_id PK
+        string userId FK
+    }
+    organizations ||--o{ projects : "orgId = clerkOrgId"
+    organizations ||--o{ chatMessages : "orgId = clerkOrgId"
+    users ||--o{ projects : "createdBy = externalId"
+    users ||--o{ chatMessages : "userId = externalId"
+    users ||--o{ paymentAttempts : "userId = externalId"
+```
 
 ## Shadcn Component Installation
 When installing shadcn/ui components use: `npx shadcn@latest add [component-name]`
-
-## Phase Build Progress
-- [x] Phase 1 — Foundation: route groups renamed, deps installed, middleware updated
-- [ ] Phase 2 — Multi-Tenancy: Convex schema + auth helpers + org webhooks + (auth) routes
-- [ ] Phase 3 — Projects CRUD
-- [ ] Phase 4 — Billing B2B extension
-- [ ] Phase 5 — AI + Background Jobs
-- [ ] Phase 6 — Polish + Docs
