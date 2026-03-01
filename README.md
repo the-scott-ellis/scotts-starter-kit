@@ -228,6 +228,23 @@ export const DEFAULT_MODEL = "openai:gpt-4o";
 
 ---
 
+## Design Decisions
+
+| Decision | Choice | Rationale |
+|---|---|---|
+| Multi-tenancy | Column-level `orgId` on every table | Simplest pattern for Convex; scales to thousands of orgs without schema changes |
+| Org ID type | Clerk string IDs (not Convex IDs) | Clerk owns the org lifecycle — storing Convex IDs would create sync problems |
+| Convex auth wrappers | `convex-helpers` `authedQuery`/`authedMutation` | Officially recommended pattern; eliminates the entire class of forgotten-filter bugs |
+| Billing | Clerk Billing with `forOrganizations` | Zero webhook code, 5-minute setup — the right default for prototypes |
+| Billing escape hatch | Direct Stripe (documented, not wired) | Clear migration path when a prototype graduates to production |
+| Background jobs | Convex scheduled functions | Built-in, no extra service to manage for simple cron/delay use cases |
+| Complex workflows | Trigger.dev v4 (documented add-on) | Reach for this when you need retries, orchestration, or long-running jobs |
+| AI model management | Provider registry pattern | Swap models by changing one string in `lib/ai/registry.ts` |
+| Forms | React Hook Form + Zod | Best DX for complex forms; Zod schemas double as Convex validator mirrors |
+| Webhook verification | Svix | Cryptographic signature verification on all inbound Clerk webhooks |
+
+---
+
 ## Deploying to Vercel
 
 ```bash
