@@ -4,7 +4,7 @@
 
 ### What
 
-An opinionated, production-ready starter kit for building customer-facing B2B SaaS applications. It ships a fully functional app skeleton — authentication with organization switching, org-scoped data with example CRUD, subscription billing, a marketing site, a dashboard layout, an AI chat example, and background job support — all wired together and deployable to Vercel in minutes.
+An opinionated, production-ready starter kit for building customer-facing B2B SaaS applications. It ships a fully functional app skeleton — authentication with organization switching, org-scoped data with example CRUD, subscription billing, a marketing site, a polished dashboard with charts and data tables, an AI chat example, and background job support — all wired together and deployable to Vercel in minutes.
 
 ### Who
 
@@ -14,52 +14,69 @@ A solo developer rapidly building prototypes for a non-technical boss who wants 
 
 Every new prototype shouldn't start from scratch. This kit codifies the stack decisions, multi-tenancy patterns, auth flows, billing integration, and UI components that are common across all B2B SaaS apps — so a new prototype starts at "it works, now make it do the specific thing."
 
-### Inspiration
+### Approach: Fork and Extend
 
-Based on the patterns from [michaelshimeles/nextjs-starter-kit](https://github.com/michaelshimeles/nextjs-starter-kit) (Next.js 15, shadcn/ui, Tailwind v4, Vercel AI SDK), but rebuilt around **Convex**, **Clerk**, and **Clerk Billing** for multi-organization B2B apps.
+This kit is built by forking [RayFernando1337/elite-next-clerk-convex-starter](https://github.com/RayFernando1337/elite-next-clerk-convex-starter), which provides a polished foundation (Next.js 15, Convex, Clerk, Clerk Billing, shadcn/ui, Tailwind v4, dashboard with charts/tables, landing page with animations). We extend it with the B2B multi-tenancy layer, AI integration, background jobs, and org-scoped CRUD patterns that make it suitable for rapid B2B SaaS prototyping.
+
+**What the base kit gives us (keep as-is):**
+- Dashboard layout with collapsible sidebar, KPI cards, interactive area charts, advanced data table with drag-and-drop
+- Landing page with hero, features, testimonials, FAQ, CTA sections
+- Clerk auth with sign-in/sign-up, protected routes, webhook-driven user sync to Convex
+- Clerk Billing with `<PricingTable>`, `<Protect>` payment gating, payment attempt tracking in Convex
+- 38 shadcn/ui components, OKLch color system, dark mode, Framer Motion animations
+- Custom animation components (MagicUI, Motion Primitives, React Bits, KokonutUI)
+- TanStack Table with sorting, filtering, drag-and-drop via @dnd-kit
+- Recharts data visualization
+- Svix webhook signature verification
+- Cookie-persisted sidebar state with Cmd+B keyboard shortcut
+- Interactive 404 page with splash cursor effect
+
+**What we add on top:**
+- Clerk Organizations (B2B multi-tenancy with org switching, RBAC)
+- Org-scoped data isolation via `convex-helpers` auth wrappers
+- Example CRUD resource (projects) with React Hook Form + Zod
+- Vercel AI SDK with provider registry and streaming chat
+- Convex scheduled functions (cron jobs)
+- Settings pages (org settings, members, billing management)
+- Auth route group with org selection page
+- Legal page placeholders
 
 ---
 
 ## 2. Tech Stack
 
-### Core
+### Inherited from Elite Kit
 
 | Layer | Technology | Version | Role |
 |---|---|---|---|
-| Framework | Next.js (App Router) | 15+ | Full-stack React framework with server components |
+| Framework | Next.js (App Router) | 15.3+ | Full-stack React framework with Turbopack |
 | Runtime | React | 19 | UI library |
 | Language | TypeScript | 5+ | Type safety across the entire stack |
-| Database | Convex | Latest | Realtime serverless database with built-in scheduling, file storage, and full-text search |
-| Auth | Clerk | Latest | Identity management, B2B organization components, roles & permissions (RBAC) |
-| Billing | Clerk Billing (wraps Stripe) | Beta | Per-organization subscription billing with zero webhook code |
-| AI | Vercel AI SDK | 4+ | Multi-model streaming chat with provider registry pattern |
-| Hosting | Vercel | — | Deployment, preview environments, edge functions |
+| Database | Convex | 1.25+ | Realtime serverless database |
+| Auth | Clerk | 6.24+ | Identity management with `@clerk/nextjs`, `@clerk/backend`, `@clerk/themes` |
+| Billing | Clerk Billing | Included | Per-user subscription billing with `<PricingTable>` + `<Protect>` |
+| UI | shadcn/ui (new-york) | Latest | 38 copy-paste components built on Radix UI |
+| CSS | Tailwind CSS v4 | 4+ | Utility-first CSS with OKLch color system |
+| Dark mode | next-themes | 0.4+ | Theme management with flash prevention |
+| Animations | Framer Motion / Motion | 12+ | Page transitions and UI animations |
+| Data tables | @tanstack/react-table | 8.21+ | Headless sortable/filterable tables |
+| Drag-and-drop | @dnd-kit | 6+ | Drag-and-drop for table row reordering |
+| Charts | Recharts | 2.15+ | Area charts with interactive time selectors |
+| Icons | Lucide React + @tabler/icons-react | Latest | Dual icon libraries |
+| Toasts | Sonner | 2+ | Toast notification system |
+| Validation | Zod | 3.25+ | Schema validation (data table, extended to forms) |
+| Webhooks | Svix | 1.69+ | Cryptographic webhook signature verification |
 
-### UI & Design System
+### Added by Us
 
-| Technology | Role |
-|---|---|
-| shadcn/ui (new-york style) | Copy-paste component library built on Radix UI primitives |
-| Tailwind CSS v4 | Utility-first CSS with CSS-based configuration (no `tailwind.config.ts`) |
-| Radix UI | Accessible headless primitives (implicit via shadcn/ui) |
-| next-themes | Dark mode management with flash prevention |
-| Framer Motion | Page transitions and UI animations |
-| Lucide React | Icon library (shadcn default) |
-| Sonner | Toast notification system |
-
-### Forms & Validation
-
-| Technology | Role |
-|---|---|
-| React Hook Form | Performant form state management |
-| Zod | TypeScript-first schema validation (reusable across client + Convex) |
-
-### Backend Utilities
-
-| Technology | Role |
-|---|---|
-| convex-helpers | Custom function wrappers for auth middleware (`authedQuery`/`authedMutation`) |
-| Convex scheduled functions | Built-in cron jobs and delayed mutations — no extra service |
+| Layer | Technology | Role |
+|---|---|---|
+| B2B orgs | Clerk Organizations | Multi-tenancy, org switching, roles & permissions (RBAC) |
+| Billing (B2B) | Clerk Billing `forOrganizations` | Per-organization subscription billing |
+| Auth helpers | convex-helpers | `authedQuery`/`authedMutation` wrappers enforcing org-scoped data access |
+| AI | Vercel AI SDK (ai, @ai-sdk/anthropic, @ai-sdk/openai) | Multi-model streaming chat with provider registry |
+| Forms | React Hook Form + @hookform/resolvers | Performant form state management with Zod integration |
+| Background jobs | Convex scheduled functions | Built-in cron jobs and delayed mutations |
 
 ### Documented Add-Ons (Not Wired by Default)
 
@@ -88,21 +105,21 @@ User logs in via Clerk
           → Every database query filters by orgId automatically
 ```
 
-**Key principle:** Developers never write raw `ctx.db.query("table")` calls. They always use the `authedQuery`/`authedMutation` wrappers from `convex-helpers`, which inject the `orgId` and enforce filtering. This eliminates the entire class of cross-tenant data leakage bugs.
+**Key principle:** Developers never write raw `ctx.db.query("table")` calls for org-scoped data. They always use the `authedQuery`/`authedMutation` wrappers from `convex-helpers`, which inject the `orgId` and enforce filtering. This eliminates the entire class of cross-tenant data leakage bugs.
 
 ### 3.2 Provider Composition
 
-The root layout nests providers in this order (outermost → innermost):
+The root layout nests providers in this order (matching Elite Kit's existing pattern):
 
 ```
-<ClerkProvider>
-  <ConvexProviderWithClerk>    ← uses Clerk's useAuth for Convex auth
-    <ThemeProvider>             ← next-themes
-      <Toaster />              ← Sonner
+<ThemeProvider>                    ← next-themes (outermost, matches Elite Kit)
+  <ClerkProvider>
+    <ConvexProviderWithClerk>      ← uses Clerk's useAuth for Convex auth
+      <Toaster />                  ← Sonner
       {children}
-    </ThemeProvider>
-  </ConvexProviderWithClerk>
-</ClerkProvider>
+    </ConvexProviderWithClerk>
+  </ClerkProvider>
+</ThemeProvider>
 ```
 
 ### 3.3 Clerk JWT Configuration
@@ -110,33 +127,41 @@ The root layout nests providers in this order (outermost → innermost):
 The Clerk JWT template for Convex must include these claims (configured in Clerk Dashboard):
 
 - `sub` — user ID (automatic)
-- `org_id` — the active organization ID
+- `org_id` — the active organization ID (**new** — add to existing JWT template)
 - `org_role` — the user's role in the active org (e.g., `org:admin`, `org:member`)
 
 ### 3.4 Route Protection
 
-- **Clerk middleware** (`middleware.ts`) protects all `(app)` routes
-- **Org guard** in `(app)/layout.tsx` redirects to org-selection if no active org
-- **Role gating** via `has({ role: 'org:admin' })` for admin-only routes
-- **Feature gating** via `has({ plan: 'pro' })` or `has({ feature: 'ai-chat' })` for plan-gated features
+- **Clerk middleware** (`middleware.ts`) protects all dashboard routes (extends existing)
+- **Org guard** in dashboard `layout.tsx` redirects to org-selection if no active org (**new**)
+- **Role gating** via `has({ role: 'org:admin' })` for admin-only routes (**new**)
+- **Feature gating** via `has({ plan: 'pro' })` or `has({ feature: 'ai-chat' })` for plan-gated features (extends existing `<Protect>` pattern)
 
 ---
 
 ## 4. Database Schema (Convex)
 
-### 4.1 Tables
+### 4.1 Existing Tables (from Elite Kit — modify)
 
 #### `users` — Synced from Clerk Webhooks
 
+Already exists in Elite Kit with `name` and `externalId`. **Extend with:**
+
 | Field | Type | Notes |
 |---|---|---|
-| `clerkId` | `v.string()` | Clerk user ID (`user_xxxxx`) |
-| `email` | `v.string()` | |
-| `name` | `v.optional(v.string())` | |
-| `imageUrl` | `v.optional(v.string())` | |
-| `updatedAt` | `v.number()` | Unix timestamp |
+| `externalId` | `v.string()` | Clerk user ID — already exists |
+| `name` | `v.string()` | Already exists |
+| `email` | `v.string()` | **Add** |
+| `imageUrl` | `v.optional(v.string())` | **Add** |
+| `updatedAt` | `v.number()` | **Add** |
 
-**Indexes:** `by_clerkId`, `by_email`
+**Indexes:** `byExternalId` (existing), `by_email` (**add**)
+
+#### `paymentAttempts` — Payment Tracking
+
+Keep as-is from Elite Kit. Detailed payment attempt tracking with subscription items, payer info, totals, and failure reasons. Already indexed by `paymentId`, `userId`, and `payerUserId`.
+
+### 4.2 New Tables (add)
 
 #### `organizations` — Synced from Clerk Webhooks
 
@@ -147,10 +172,10 @@ The Clerk JWT template for Convex must include these claims (configured in Clerk
 | `slug` | `v.string()` | |
 | `imageUrl` | `v.optional(v.string())` | |
 | `plan` | `v.optional(v.union(...))` | `"free"`, `"pro"`, `"enterprise"` — for direct Stripe path |
-| `stripeCustomerId` | `v.optional(v.string())` | For direct Stripe path |
-| `stripeSubscriptionId` | `v.optional(v.string())` | For direct Stripe path |
-| `stripePriceId` | `v.optional(v.string())` | For direct Stripe path |
-| `stripeCurrentPeriodEnd` | `v.optional(v.number())` | For direct Stripe path |
+| `stripeCustomerId` | `v.optional(v.string())` | For direct Stripe escape hatch |
+| `stripeSubscriptionId` | `v.optional(v.string())` | For direct Stripe escape hatch |
+| `stripePriceId` | `v.optional(v.string())` | For direct Stripe escape hatch |
+| `stripeCurrentPeriodEnd` | `v.optional(v.number())` | For direct Stripe escape hatch |
 | `updatedAt` | `v.number()` | |
 
 **Indexes:** `by_clerkOrgId`, `by_stripeCustomerId`
@@ -183,9 +208,9 @@ The Clerk JWT template for Convex must include these claims (configured in Clerk
 
 **Indexes:** `by_orgId_conversation`
 
-### 4.2 Auth Helper Pattern
+### 4.3 Auth Helper Pattern
 
-Using `convex-helpers` custom function wrappers:
+Using `convex-helpers` custom function wrappers (**new file: `convex/lib/auth.ts`**):
 
 ```typescript
 // convex/lib/auth.ts
@@ -218,7 +243,7 @@ export const list = authedQuery({
 });
 ```
 
-### 4.3 Schema Design Principles
+### 4.4 Schema Design Principles
 
 1. **`orgId` is always a `v.string()`** — stores the Clerk org ID directly, not a Convex document ID. Clerk owns the org lifecycle.
 2. **Compound indexes always lead with `orgId`** — ensures efficient queries within a tenant's data.
@@ -231,56 +256,89 @@ export const list = authedQuery({
 
 ### 5.1 Overview
 
+The Elite Kit has two route areas: `(landing)` and `dashboard`. We restructure into three route groups and add new pages.
+
+**Changes from Elite Kit:**
+- Rename `(landing)` → `(marketing)` and add pricing + legal pages
+- Add `(auth)` route group for sign-in, sign-up, org-selection
+- Rename `dashboard` → `(app)` route group and add projects CRUD, AI chat, settings, admin pages
+- Add API routes for AI chat endpoint
+- Extend existing webhook handler for org events
+
 ```
 app/
-├── (marketing)/                    # Public pages — no auth required
-│   ├── layout.tsx                  # Marketing layout (navbar + footer)
-│   ├── page.tsx                    # Landing page (hero, features, CTA)
+├── (marketing)/                       # Public pages — no auth required
+│   ├── layout.tsx                     # MODIFY existing (landing) layout
+│   ├── page.tsx                       # KEEP — landing page (hero, features, testimonials, FAQ, CTA)
+│   ├── header.tsx                     # KEEP — auth-aware navigation header
+│   ├── hero-section.tsx               # KEEP — hero with CTA
+│   ├── features-one.tsx               # KEEP — feature showcase
+│   ├── animated-list-custom.tsx       # KEEP — animated feature list
+│   ├── table.tsx                      # KEEP — features comparison table
+│   ├── cpu-architecture.tsx           # KEEP — custom animation
+│   ├── testimonials.tsx               # KEEP — testimonial carousel
+│   ├── call-to-action.tsx             # KEEP — CTA section
+│   ├── faqs.tsx                       # KEEP — FAQ accordion
+│   ├── footer.tsx                     # KEEP — footer with links
 │   ├── pricing/
-│   │   └── page.tsx                # Pricing tiers (Clerk <PricingTable>)
+│   │   └── page.tsx                   # ADD — Clerk <PricingTable forOrganizations />
 │   └── legal/
-│       ├── terms/page.tsx          # Terms of service
-│       └── privacy/page.tsx        # Privacy policy
+│       ├── terms/page.tsx             # ADD — terms of service placeholder
+│       └── privacy/page.tsx           # ADD — privacy policy placeholder
 │
-├── (auth)/                         # Auth pages — Clerk hosted components
-│   ├── layout.tsx                  # Centered card layout
+├── (auth)/                            # ADD — auth pages
+│   ├── layout.tsx                     # ADD — centered card layout
 │   ├── sign-in/
-│   │   └── [[...sign-in]]/page.tsx
+│   │   └── [[...sign-in]]/page.tsx    # ADD — Clerk SignIn component
 │   ├── sign-up/
-│   │   └── [[...sign-up]]/page.tsx
+│   │   └── [[...sign-up]]/page.tsx    # ADD — Clerk SignUp component
 │   └── org-selection/
-│       └── page.tsx                # Post-login org picker / create org
+│       └── page.tsx                   # ADD — post-login org picker / create org
 │
-├── (app)/                          # Authenticated app — org context required
-│   ├── layout.tsx                  # Sidebar + topbar + org guard
+├── (app)/                             # MODIFY — rename from dashboard/
+│   ├── layout.tsx                     # MODIFY — add org guard + <OrganizationSwitcher> to sidebar
 │   ├── dashboard/
-│   │   └── page.tsx                # Main dashboard (summary cards, activity)
-│   ├── projects/                   # Example CRUD resource
-│   │   ├── page.tsx                # List view (paginated table)
-│   │   ├── new/page.tsx            # Create form
+│   │   └── page.tsx                   # KEEP — KPI cards, area chart, data table (from Elite Kit)
+│   ├── projects/                      # ADD — example org-scoped CRUD
+│   │   ├── page.tsx                   # ADD — list view (TanStack Table, org-filtered)
+│   │   ├── new/page.tsx               # ADD — create form (React Hook Form + Zod)
 │   │   └── [projectId]/
-│   │       ├── page.tsx            # Detail view
-│   │       └── edit/page.tsx       # Edit form
+│   │       ├── page.tsx               # ADD — detail view
+│   │       └── edit/page.tsx          # ADD — edit form
 │   ├── ai/
-│   │   └── page.tsx                # AI chat interface (feature-gated)
+│   │   └── page.tsx                   # ADD — AI chat interface (feature-gated)
 │   ├── settings/
-│   │   ├── page.tsx                # General org settings
+│   │   ├── page.tsx                   # ADD — general org settings
 │   │   ├── members/
-│   │   │   └── page.tsx            # Clerk <OrganizationProfile> members tab
+│   │   │   └── page.tsx              # ADD — Clerk <OrganizationProfile> members tab
 │   │   └── billing/
-│   │       └── page.tsx            # Subscription management
-│   └── admin/                      # Org-admin only (role-gated)
-│       └── page.tsx                # Usage stats, danger zone
+│   │       └── page.tsx               # ADD — subscription management
+│   ├── admin/                         # ADD — org-admin only (role-gated)
+│   │   └── page.tsx                   # ADD — usage stats, danger zone
+│   ├── app-sidebar.tsx                # MODIFY — add org switcher, update nav items
+│   ├── site-header.tsx                # KEEP — dashboard header
+│   ├── loading-bar.tsx                # KEEP — page loading indicator
+│   ├── nav-main.tsx                   # MODIFY — add projects, AI, settings nav items
+│   ├── nav-user.tsx                   # KEEP — user profile menu
+│   ├── nav-documents.tsx              # KEEP or MODIFY for org context
+│   ├── nav-secondary.tsx              # KEEP — secondary nav with theme toggle
+│   ├── section-cards.tsx              # KEEP — KPI cards
+│   ├── chart-area-interactive.tsx     # KEEP — area chart
+│   ├── data-table.tsx                 # KEEP — advanced data table (reuse for projects)
+│   ├── data.json                      # REMOVE — replace with real Convex data
+│   └── payment-gated/
+│       └── page.tsx                   # KEEP — subscription-protected page pattern
 │
 ├── api/
-│   ├── webhooks/
-│   │   ├── clerk/route.ts          # Clerk webhook (user/org sync → Convex)
-│   │   └── stripe/route.ts         # Stripe webhook (direct integration path)
 │   └── ai/
-│       └── chat/route.ts           # Vercel AI SDK streaming endpoint
+│       └── chat/route.ts             # ADD — Vercel AI SDK streaming endpoint
 │
-└── layout.tsx                      # Root layout: providers, fonts, metadata
+├── layout.tsx                         # MODIFY — keep provider stack, add org-related providers
+├── globals.css                        # KEEP — OKLch colors, theme vars, tw-animate-css
+└── not-found.tsx                      # KEEP — custom 404 with splash cursor
 ```
+
+> Note: Clerk webhook handling stays in `convex/http.ts` (Convex HTTP actions), not Next.js API routes. We extend the existing handler to process `organization.created` and `organization.updated` events.
 
 ### 5.2 Route Protection Matrix
 
@@ -293,74 +351,88 @@ app/
 | `(app)/ai` | Yes | Yes | Plan: `has({ feature: 'ai-chat' })` |
 | `(app)/settings/*` | Yes | Yes | — |
 | `(app)/admin` | Yes | Yes | `has({ role: 'org:admin' })` |
-| `api/webhooks/*` | No (verified by signature) | — | — |
 | `api/ai/chat` | Yes (via Clerk) | Yes | — |
 
 ---
 
 ## 6. Core Features
 
-### Layer 1 — Infrastructure Shell
+### Layer 1 — Infrastructure Shell (inherited from Elite Kit)
 
-**What ships:** The foundational wiring that makes everything else possible.
+**What we keep:** The foundational wiring is already done.
 
-- Next.js 15+ with App Router, React 19, TypeScript strict mode
-- Convex initialized with schema, dev server, `ConvexProviderWithClerk` in root layout
-- Clerk configured with `ClerkProvider`, middleware, sign-in/sign-up pages, org switcher
-- Tailwind CSS v4 with CSS-based configuration in `globals.css` (no `tailwind.config.ts`)
-- shadcn/ui initialized with `components.json` (new-york style, CSS variables enabled)
-- Base shadcn components installed: Button, Card, Input, Label, Dialog, DropdownMenu, Sheet, Skeleton, Tooltip, Badge, Separator, Tabs
+- Next.js 15+ with App Router, React 19, TypeScript, Turbopack dev server
+- Convex initialized with schema, webhook handler, `ConvexProviderWithClerk` in root layout
+- Clerk configured with `ClerkProvider`, middleware, sign-in/sign-up (modal-based), user sync webhooks
+- Tailwind CSS v4 with OKLch color system in `globals.css` + `tw-animate-css`
+- shadcn/ui (new-york style, 38 components) with CSS variables
 - `next-themes` ThemeProvider with `attribute="class"` and `defaultTheme="system"`
+- Svix webhook signature verification
 
-### Layer 2 — App Shell
+**What we modify:**
+- Extend Clerk JWT template to include `org_id` and `org_role` claims
+- Extend `convex/auth.config.ts` if needed for org claims
+- Add `convex-helpers` dependency
 
-**What ships:** A professional-looking app layout that works on all screen sizes.
+### Layer 2 — App Shell (inherited from Elite Kit, enhanced)
 
-- **Sidebar navigation** — collapsible with icon-only mode, contains nav items from `config/nav.ts`, org switcher (`<OrganizationSwitcher>`), user button (`<UserButton>`)
-- **Topbar** — breadcrumbs, theme toggle (dark/light/system), mobile menu trigger
-- **Mobile navigation** — sidebar content in a Sheet component, triggered from topbar
-- **Loading states** — Skeleton components in `loading.tsx` files for each route
-- **Error handling** — `error.tsx` files in each route group with retry functionality
-- **Empty states** — reusable component with illustration slot, title, description, action button
-- **Page header** — reusable component with title, description, and optional action slot
-- **Animations** — Framer Motion page transitions on route changes, sidebar collapse animation
+**What we keep:**
 
-### Layer 3 — Multi-Tenancy + Auth
+- **Sidebar navigation** — collapsible with icon-only mode, cookie-persisted state, Cmd+B keyboard shortcut
+- **Site header** — dashboard top bar with breadcrumbs
+- **KPI section cards** — Revenue, New Customers, Active Accounts, Growth Rate
+- **Interactive area chart** — Recharts with time period selector and metric toggles
+- **Advanced data table** — TanStack Table with sorting, filtering, pagination, drag-and-drop via @dnd-kit
+- **Loading bar** — page transition indicator
+- **Custom animations** — MagicUI (animated-list, pulsating-button), Motion Primitives (infinite-slider, progressive-blur), React Bits (splash-cursor, text-cursor, pixel-card), KokonutUI (attract-button)
+- **Mobile-responsive sidebar** — off-canvas on mobile via Sheet component
 
-**What ships:** Secure org-scoped data access out of the box.
+**What we add:**
+- **`<OrganizationSwitcher>`** in sidebar — Clerk org switching component
+- **Org guard** in `(app)/layout.tsx` — redirect to org-selection if no active org
+- **New nav items** — Projects, AI Chat, Settings, Admin in sidebar navigation
+- **Empty states** — reusable component for pages with no data yet
+- **Page header** — reusable component with title, description, optional action slot
+
+### Layer 3 — Multi-Tenancy + Auth (new)
+
+**What we add:**
 
 - `authedQuery` / `authedMutation` helpers in `convex/lib/auth.ts` — enforce `orgId` on every database operation
-- Clerk webhook handler (`api/webhooks/clerk/route.ts`) — syncs `user.created`, `user.updated`, `organization.created`, `organization.updated` events to Convex `users` and `organizations` tables
-- Org guard in `(app)/layout.tsx` — checks for active organization, redirects to `/org-selection` if none
-- Org selection page — Clerk `<OrganizationList>` component for picking or creating an org
-- Role-based access — `has({ role: 'org:admin' })` check in middleware and in admin page server component
+- Extend Clerk webhook handler in `convex/http.ts` to process `organization.created`, `organization.updated` events → sync to Convex `organizations` table
+- Auth route group `(auth)/` with Clerk `<SignIn>`, `<SignUp>`, `<OrganizationList>` components
+- Org selection page — post-login picker for choosing or creating an org
+- Role-based access — `has({ role: 'org:admin' })` check in middleware and admin page
+- Extend middleware to protect `(app)` route group (replaces existing `/dashboard(.*)` matcher)
 
-### Layer 4 — Billing
+### Layer 4 — Billing (inherited, extended for B2B)
 
-**What ships:** Working subscription billing with per-organization plans.
+**What we keep:**
+- Clerk `<PricingTable>` component with theme-aware styling (`custom-clerk-pricing.tsx`)
+- `<Protect>` component for payment gating (existing `payment-gated/page.tsx` pattern)
+- Payment attempt tracking in Convex via webhooks (`convex/paymentAttempts.ts`)
 
-**Default path: Clerk Billing (recommended for prototypes)**
-
-- Pricing page with Clerk `<PricingTable forOrganizations />` — renders plans defined in Clerk Dashboard
-- Feature gating via `has({ plan: 'pro' })` or `has({ feature: 'ai-chat' })` in server components and middleware
-- Billing settings page with `<OrganizationProfile>` showing the billing tab — users manage subscriptions, view invoices, update payment methods
+**What we modify:**
+- Switch `<PricingTable>` to use `forOrganizations` prop for per-org billing
+- Update `<Protect>` conditions to check org-level plans: `has({ plan: 'pro' })`
+- Add dedicated pricing page at `(marketing)/pricing/` (currently inline on landing page)
+- Add billing settings page with `<OrganizationProfile>` billing tab
 - Plans defined in Clerk Dashboard under "Plans for Organizations" — e.g., Free, Pro ($29/mo), Enterprise ($99/mo)
 
 **Documented escape hatch: Direct Stripe integration**
 
-For when a prototype graduates to production and needs full Stripe control:
+For when a prototype graduates to production:
 
 - Stripe webhook handler → Convex mutation to update `organizations` table with subscription data
 - Custom `useOrgSubscription()` hook reads plan from Convex
 - Feature gating reads `organizations.plan` from Convex instead of Clerk's `has()`
-- Stripe Customer Portal for self-service billing management
 - Migration guide in README
 
-### Layer 5 — Example CRUD (Projects)
+### Layer 5 — Example CRUD — Projects (new)
 
-**What ships:** A complete CRUD resource demonstrating the org-scoped data pattern.
+**What we add:** A complete org-scoped CRUD resource demonstrating the data pattern.
 
-- **List view** — paginated table using Convex `usePaginatedQuery`, sortable columns, status filter badges
+- **List view** — reuses Elite Kit's TanStack Table + @dnd-kit patterns, but wired to Convex `usePaginatedQuery` filtered by `orgId`, with status filter badges
 - **Create form** — React Hook Form + Zod schema validation, Sonner toast on success, redirects to list
 - **Detail view** — single record display with loading skeleton, status badge, creator info, timestamps
 - **Edit form** — pre-populated form with optimistic updates
@@ -368,9 +440,9 @@ For when a prototype graduates to production and needs full Stripe control:
 
 This is the template developers copy when adding new resources to a prototype. The pattern is: define table in schema → write `authedQuery`/`authedMutation` functions → build form with Zod schema → wire up pages.
 
-### Layer 6 — AI Integration (Minimal)
+### Layer 6 — AI Integration (new)
 
-**What ships:** A working AI chat wired end-to-end, ready to customize.
+**What we add:** A working AI chat wired end-to-end, ready to customize.
 
 - **Provider registry** (`lib/ai/registry.ts`) — `createProviderRegistry` with Anthropic and OpenAI configured. Swap models by changing a string: `"anthropic:claude-sonnet-4-20250514"` or `"openai:gpt-4o"`.
 - **Chat API route** (`api/ai/chat/route.ts`) — uses `streamText()` from Vercel AI SDK, returns streaming response
@@ -378,9 +450,9 @@ This is the template developers copy when adding new resources to a prototype. T
 - **Message persistence** — optional save to Convex `chatMessages` table (can be toggled)
 - **Feature gate** — AI chat page gated behind `has({ feature: 'ai-chat' })` — only available on paid plans
 
-### Layer 7 — Background Jobs
+### Layer 7 — Background Jobs (new)
 
-**What ships:** Built-in scheduled function support, with Trigger.dev documented as an add-on.
+**What we add:** Built-in scheduled function support.
 
 **Included: Convex scheduled functions**
 
@@ -397,23 +469,29 @@ This is the template developers copy when adding new resources to a prototype. T
 
 ---
 
-## 7. Marketing Pages
+## 7. Marketing Pages (inherited, extended)
 
-### Landing Page (`(marketing)/page.tsx`)
+### Landing Page (`(marketing)/page.tsx`) — KEEP
 
-- **Hero section** — headline, subheadline, CTA button (links to sign-up), product screenshot/illustration
-- **Features grid** — 3-6 feature cards with icons, titles, descriptions
-- **CTA section** — bottom call-to-action with pricing link
+The Elite Kit's landing page is comprehensive and polished. Keep all existing sections:
 
-All sections are separate components in `components/marketing/` for easy customization per-prototype.
+- **Header** — auth-aware navigation with SignIn/SignUp/Dashboard buttons
+- **Hero section** — headline, subheadline, CTA button, product screenshot
+- **Features showcase** — animated feature list + features table
+- **Testimonials** — carousel with infinite slider + progressive blur
+- **FAQ accordion** — expandable questions and answers
+- **Call-to-action** — bottom CTA section
+- **Footer** — links and branding
 
-### Pricing Page (`(marketing)/pricing/page.tsx`)
+All sections are already separate components for easy per-prototype customization.
 
-- Clerk `<PricingTable forOrganizations />` component
+### Pricing Page (`(marketing)/pricing/page.tsx`) — ADD
+
+- Clerk `<PricingTable forOrganizations />` component (reuse `custom-clerk-pricing.tsx` with org prop)
 - Displays plans configured in Clerk Dashboard
 - Handles checkout flow automatically
 
-### Legal Pages
+### Legal Pages — ADD
 
 - Terms of service — placeholder content with sections for acceptable use, liability, etc.
 - Privacy policy — placeholder content with sections for data collection, usage, retention, etc.
@@ -422,141 +500,169 @@ All sections are separate components in `components/marketing/` for easy customi
 
 ## 8. Project File Structure
 
+Files marked **KEEP** are unchanged from the Elite Kit. Files marked **MODIFY** are edited. Files marked **ADD** are new.
+
 ```
 scotts-starter-kit/
 │
-├── app/                                # Next.js App Router
-│   ├── (marketing)/                    # Public pages
-│   │   ├── layout.tsx
-│   │   ├── page.tsx                    # Landing page
-│   │   ├── pricing/page.tsx
+├── app/
+│   ├── (marketing)/                        # MODIFY — rename from (landing)
+│   │   ├── page.tsx                        # KEEP — full landing page
+│   │   ├── header.tsx                      # KEEP — auth-aware nav
+│   │   ├── hero-section.tsx                # KEEP
+│   │   ├── features-one.tsx                # KEEP
+│   │   ├── animated-list-custom.tsx        # KEEP
+│   │   ├── table.tsx                       # KEEP
+│   │   ├── cpu-architecture.tsx            # KEEP
+│   │   ├── testimonials.tsx                # KEEP
+│   │   ├── call-to-action.tsx              # KEEP
+│   │   ├── faqs.tsx                        # KEEP
+│   │   ├── footer.tsx                      # KEEP
+│   │   ├── pricing/page.tsx                # ADD
 │   │   └── legal/
-│   │       ├── terms/page.tsx
-│   │       └── privacy/page.tsx
-│   ├── (auth)/                         # Auth pages
-│   │   ├── layout.tsx
-│   │   ├── sign-in/[[...sign-in]]/page.tsx
-│   │   ├── sign-up/[[...sign-up]]/page.tsx
-│   │   └── org-selection/page.tsx
-│   ├── (app)/                          # Authenticated app
-│   │   ├── layout.tsx                  # Sidebar layout + org guard
-│   │   ├── dashboard/page.tsx
-│   │   ├── projects/
-│   │   │   ├── page.tsx
-│   │   │   ├── new/page.tsx
+│   │       ├── terms/page.tsx              # ADD
+│   │       └── privacy/page.tsx            # ADD
+│   │
+│   ├── (auth)/                             # ADD — auth route group
+│   │   ├── layout.tsx                      # ADD
+│   │   ├── sign-in/[[...sign-in]]/page.tsx # ADD
+│   │   ├── sign-up/[[...sign-up]]/page.tsx # ADD
+│   │   └── org-selection/page.tsx          # ADD
+│   │
+│   ├── (app)/                              # MODIFY — rename from dashboard/
+│   │   ├── layout.tsx                      # MODIFY — add org guard
+│   │   ├── dashboard/page.tsx              # KEEP — KPI cards, chart, table
+│   │   ├── projects/                       # ADD — org-scoped CRUD
+│   │   │   ├── page.tsx                    # ADD — list view
+│   │   │   ├── new/page.tsx               # ADD — create form
 │   │   │   └── [projectId]/
-│   │   │       ├── page.tsx
-│   │   │       └── edit/page.tsx
-│   │   ├── ai/page.tsx
+│   │   │       ├── page.tsx               # ADD — detail view
+│   │   │       └── edit/page.tsx          # ADD — edit form
+│   │   ├── ai/page.tsx                    # ADD — AI chat
 │   │   ├── settings/
-│   │   │   ├── page.tsx
-│   │   │   ├── members/page.tsx
-│   │   │   └── billing/page.tsx
-│   │   └── admin/page.tsx
+│   │   │   ├── page.tsx                    # ADD — org settings
+│   │   │   ├── members/page.tsx            # ADD — <OrganizationProfile>
+│   │   │   └── billing/page.tsx            # ADD — billing management
+│   │   ├── admin/page.tsx                  # ADD — role-gated admin
+│   │   ├── app-sidebar.tsx                 # MODIFY — add org switcher + new nav
+│   │   ├── site-header.tsx                 # KEEP
+│   │   ├── loading-bar.tsx                 # KEEP
+│   │   ├── nav-main.tsx                    # MODIFY — new nav items
+│   │   ├── nav-user.tsx                    # KEEP
+│   │   ├── nav-documents.tsx               # KEEP
+│   │   ├── nav-secondary.tsx               # KEEP
+│   │   ├── section-cards.tsx               # KEEP
+│   │   ├── chart-area-interactive.tsx      # KEEP
+│   │   ├── data-table.tsx                  # KEEP — reuse pattern for projects
+│   │   └── payment-gated/page.tsx          # KEEP — payment gating pattern
+│   │
 │   ├── api/
-│   │   ├── webhooks/
-│   │   │   ├── clerk/route.ts
-│   │   │   └── stripe/route.ts
-│   │   └── ai/chat/route.ts
-│   ├── layout.tsx                      # Root layout (providers)
-│   ├── globals.css                     # Tailwind v4 + shadcn CSS vars
-│   └── not-found.tsx
+│   │   └── ai/chat/route.ts               # ADD — Vercel AI SDK streaming
+│   │
+│   ├── layout.tsx                          # MODIFY — extend providers
+│   ├── globals.css                         # KEEP — OKLch + tw-animate-css
+│   └── not-found.tsx                       # KEEP — splash cursor 404
 │
 ├── components/
-│   ├── ui/                             # shadcn/ui components
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   └── ... (all shadcn components)
-│   ├── layout/                         # App shell
-│   │   ├── sidebar.tsx
-│   │   ├── topbar.tsx
-│   │   ├── mobile-nav.tsx
-│   │   └── org-switcher.tsx
-│   ├── marketing/                      # Landing page sections
-│   │   ├── hero.tsx
-│   │   ├── features.tsx
-│   │   └── cta.tsx
-│   ├── forms/                          # Reusable form components
-│   │   └── project-form.tsx
-│   ├── ai/                             # AI components
-│   │   └── chat-interface.tsx
-│   └── shared/                         # Reusable pieces
-│       ├── loading-spinner.tsx
-│       ├── error-boundary.tsx
-│       ├── empty-state.tsx
-│       └── page-header.tsx
+│   ├── ui/                                 # KEEP — all 38 shadcn components
+│   ├── custom-clerk-pricing.tsx            # MODIFY — add forOrganizations
+│   ├── theme-provider.tsx                  # KEEP
+│   ├── ConvexClientProvider.tsx             # KEEP
+│   ├── logo.tsx                            # KEEP
+│   ├── mode-toggle.tsx                     # KEEP
+│   ├── magicui/                            # KEEP — animated-list, pulsating-button
+│   ├── motion-primitives/                  # KEEP — infinite-slider, progressive-blur
+│   ├── kokonutui/                          # KEEP — attract-button
+│   ├── react-bits/                         # KEEP — splash-cursor, text-cursor, pixel-card
+│   ├── forms/                              # ADD
+│   │   └── project-form.tsx                # ADD — React Hook Form + Zod
+│   ├── ai/                                 # ADD
+│   │   └── chat-interface.tsx              # ADD — useChat() UI
+│   └── shared/                             # ADD
+│       ├── empty-state.tsx                 # ADD
+│       └── page-header.tsx                 # ADD
 │
-├── convex/                             # Convex backend
-│   ├── _generated/                     # Auto-generated types
-│   ├── schema.ts                       # Database schema
-│   ├── auth.config.ts                  # Clerk JWT provider config
-│   ├── http.ts                         # HTTP router (optional webhooks)
-│   ├── crons.ts                        # Scheduled functions
-│   ├── lib/
-│   │   ├── auth.ts                     # authedQuery / authedMutation
-│   │   └── utils.ts                    # Shared utilities
-│   ├── users.ts                        # User sync functions
-│   ├── organizations.ts                # Org sync + subscription functions
-│   ├── projects.ts                     # Example CRUD functions
-│   └── chatMessages.ts                 # AI chat persistence
+├── convex/
+│   ├── _generated/                         # KEEP — auto-generated
+│   ├── schema.ts                           # MODIFY — add organizations, projects, chatMessages
+│   ├── auth.config.ts                      # KEEP (may need org_id claim config)
+│   ├── http.ts                             # MODIFY — add org webhook events
+│   ├── users.ts                            # MODIFY — extend user fields
+│   ├── paymentAttempts.ts                  # KEEP
+│   ├── paymentAttemptTypes.ts              # KEEP
+│   ├── crons.ts                            # ADD — scheduled functions
+│   ├── lib/                                # ADD
+│   │   └── auth.ts                         # ADD — authedQuery/authedMutation
+│   ├── organizations.ts                    # ADD — org sync + subscription functions
+│   ├── projects.ts                         # ADD — example CRUD functions
+│   └── chatMessages.ts                     # ADD — AI chat persistence
 │
-├── lib/                                # Shared utilities (Next.js side)
-│   ├── ai/
-│   │   └── registry.ts                 # Vercel AI SDK provider registry
-│   ├── utils.ts                        # cn() helper, formatters
-│   └── constants.ts                    # Feature flags, nav items
+├── lib/
+│   ├── utils.ts                            # KEEP — cn() helper
+│   └── ai/
+│       └── registry.ts                     # ADD — Vercel AI SDK provider registry
 │
-├── hooks/                              # Custom React hooks
-│   ├── use-org-subscription.ts         # Current org's plan from Convex
-│   └── use-feature-gate.ts            # Check feature availability
+├── hooks/
+│   ├── use-mobile.ts                       # KEEP — mobile detection
+│   ├── use-org-subscription.ts             # ADD — current org's plan from Convex
+│   └── use-feature-gate.ts                 # ADD — check feature availability
 │
-├── config/                             # App configuration
-│   ├── site.ts                         # Site name, description, URLs
-│   ├── nav.ts                          # Sidebar navigation items
-│   └── plans.ts                        # Pricing tier definitions
+├── config/                                 # ADD
+│   ├── site.ts                             # ADD — site name, description, URLs
+│   ├── nav.ts                              # ADD — sidebar navigation items
+│   └── plans.ts                            # ADD — pricing tier definitions
 │
-├── public/                             # Static assets
-│   ├── logo.svg
-│   └── og-image.png
+├── public/                                 # KEEP — existing assets
 │
-├── middleware.ts                        # Clerk route protection
-├── components.json                     # shadcn/ui CLI config
-├── next.config.ts                      # Next.js config
-├── tsconfig.json
-├── package.json
-├── .env.local.example                  # Env var template
-└── README.md                           # Setup guide
+├── middleware.ts                           # MODIFY — extend route matcher for (app)
+├── components.json                         # KEEP
+├── postcss.config.mjs                      # KEEP
+├── next.config.ts                          # KEEP (modify if needed)
+├── tsconfig.json                           # KEEP
+├── package.json                            # MODIFY — add new dependencies
+├── .env.local.example                      # MODIFY — add new env vars
+├── CLAUDE.md                               # MODIFY — update with project context
+└── README.md                               # MODIFY — full setup guide
 ```
 
 ---
 
 ## 9. Environment Variables
 
+Extends the Elite Kit's `.env.example` with new variables.
+
 ```bash
 # .env.local.example
 
-# ── Clerk ──────────────────────────────────────────────
+# ── Convex (existing) ─────────────────────────────────
+CONVEX_DEPLOYMENT=dev:your-deployment
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+
+# ── Clerk (existing) ──────────────────────────────────
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
-CLERK_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_CLERK_FRONTEND_API_URL=https://your-clerk-frontend-api-url.clerk.accounts.dev
+
+# ── Clerk Redirects (modify — add org-selection) ─────
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/org-selection
+NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL=/org-selection
+NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/org-selection
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
-# ── Convex ─────────────────────────────────────────────
-NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
-CONVEX_DEPLOY_KEY=prod:your-key           # For production deploys
+# ── Convex Environment (set in Convex dashboard) ─────
+# CLERK_WEBHOOK_SECRET=whsec_...                        # existing
+# NEXT_PUBLIC_CLERK_FRONTEND_API_URL=...                 # existing
+
+# ── AI Providers (add) ───────────────────────────────
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
 
 # ── Stripe (only if using direct integration) ─────────
 # STRIPE_SECRET_KEY=sk_test_...
 # NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 # STRIPE_WEBHOOK_SECRET=whsec_...
-
-# ── AI Providers ───────────────────────────────────────
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
 
 # ── Trigger.dev (optional add-on) ─────────────────────
 # TRIGGER_SECRET_KEY=tr_dev_...
@@ -569,68 +675,145 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 ## 10. Implementation Sequencing
 
-### Phase 1: Foundation
+Since we're forking an existing kit, the phases focus on modifications and additions rather than building from scratch.
 
-1. Initialize Next.js 15+ with TypeScript, App Router
-2. Initialize Convex (`npx convex init`)
-3. Install and configure Clerk (`@clerk/nextjs`)
-4. Set up `ConvexProviderWithClerk` in root layout
-5. Configure Clerk middleware for route protection
-6. Create `convex/auth.config.ts` with Clerk issuer
-7. Set up `globals.css` with Tailwind v4 `@import "tailwindcss"` + `@theme` + shadcn CSS variables
-8. Run `npx shadcn@latest init` and add base components
+### Phase 1: Fork + Foundation Modifications
 
-### Phase 2: App Shell
+1. Fork `RayFernando1337/elite-next-clerk-convex-starter` into this repo
+2. Install new dependencies: `convex-helpers`, `react-hook-form`, `@hookform/resolvers`, `ai`, `@ai-sdk/anthropic`, `@ai-sdk/openai`
+3. Rename `(landing)` route group → `(marketing)`
+4. Rename `dashboard` route group → `(app)` (nested under route group)
+5. Enable Clerk Organizations in Clerk Dashboard
+6. Update Clerk JWT template to include `org_id` and `org_role` claims
+7. Update `middleware.ts` to protect `(app)` routes (replace `/dashboard(.*)` matcher)
+8. Update `.env.local.example` with new variables
+9. Update redirect URLs to route through `/org-selection` after sign-in/sign-up
 
-1. Create the three route groups: `(marketing)`, `(auth)`, `(app)`
-2. Build sidebar layout with navigation from `config/nav.ts`
-3. Build topbar with org switcher, theme toggle, user button
-4. Add sign-in/sign-up catch-all pages with Clerk components
-5. Add org-selection page with `<OrganizationList>`
-6. Wire `next-themes` dark mode toggle
-7. Add Sonner `<Toaster>` to root layout
+### Phase 2: Multi-Tenancy Layer
 
-### Phase 3: Multi-Tenancy + Data
+1. Extend `convex/schema.ts` — add `organizations`, `projects`, `chatMessages` tables; extend `users` table
+2. Create `convex/lib/auth.ts` — `authedQuery`/`authedMutation` wrappers
+3. Extend `convex/http.ts` — add `organization.created`, `organization.updated` webhook handlers
+4. Create `convex/organizations.ts` — org sync mutations
+5. Create `(auth)` route group with sign-in, sign-up, org-selection pages
+6. Modify `(app)/layout.tsx` — add org guard (redirect to org-selection if no active org)
+7. Modify `app-sidebar.tsx` — add `<OrganizationSwitcher>` component
+8. Update `nav-main.tsx` — add Projects, AI, Settings, Admin nav items
 
-1. Define Convex schema (`convex/schema.ts`)
-2. Build `authedQuery`/`authedMutation` helpers with `convex-helpers`
-3. Create Clerk webhook handler (user + org sync to Convex)
-4. Build example CRUD: projects list, create, detail, edit, delete
-5. Build React Hook Form + Zod forms for project create/edit
-6. Add loading skeletons and empty states
+### Phase 3: Org-Scoped CRUD (Projects)
 
-### Phase 4: Billing
+1. Create `convex/projects.ts` — list, get, create, update, delete using `authedQuery`/`authedMutation`
+2. Create Zod schemas for project validation in `lib/` or colocated
+3. Create `(app)/projects/page.tsx` — list view reusing TanStack Table patterns from existing `data-table.tsx`, wired to Convex
+4. Create `(app)/projects/new/page.tsx` — create form with React Hook Form + Zod
+5. Create `(app)/projects/[projectId]/page.tsx` — detail view
+6. Create `(app)/projects/[projectId]/edit/page.tsx` — edit form
+7. Create `components/forms/project-form.tsx` — shared form component
+8. Create `components/shared/empty-state.tsx` and `page-header.tsx`
+9. Remove `data.json` mock data from dashboard (or keep for dashboard demo)
 
-1. Configure Clerk Billing in Clerk Dashboard (define plans, features)
-2. Add `<PricingTable forOrganizations />` to pricing page
-3. Add feature gating with `has()` to protected routes
-4. Add billing settings page with `<OrganizationProfile>` billing tab
-5. Document direct Stripe integration as alternative path
+### Phase 4: Billing Extension for B2B
+
+1. Modify `components/custom-clerk-pricing.tsx` — add `forOrganizations` prop
+2. Create `(marketing)/pricing/page.tsx` — dedicated pricing page
+3. Update `<Protect>` conditions in `payment-gated/page.tsx` to check org-level plans
+4. Create `(app)/settings/billing/page.tsx` — `<OrganizationProfile>` billing tab
+5. Create `(app)/settings/members/page.tsx` — `<OrganizationProfile>` members tab
+6. Create `(app)/settings/page.tsx` — general org settings
+7. Create `(app)/admin/page.tsx` — role-gated admin page with `has({ role: 'org:admin' })`
 
 ### Phase 5: AI + Background Jobs
 
-1. Set up Vercel AI SDK provider registry in `lib/ai/registry.ts`
-2. Create `api/ai/chat/route.ts` with `streamText()`
-3. Build chat UI component with `useChat()`
-4. Set up Convex cron job example in `convex/crons.ts`
-5. Document Trigger.dev v4 add-on pattern
+1. Create `lib/ai/registry.ts` — provider registry with Anthropic + OpenAI
+2. Create `api/ai/chat/route.ts` — `streamText()` streaming endpoint
+3. Create `components/ai/chat-interface.tsx` — `useChat()` chat UI
+4. Create `(app)/ai/page.tsx` — AI chat page, gated behind `has({ feature: 'ai-chat' })`
+5. Create `convex/chatMessages.ts` — message persistence functions
+6. Create `convex/crons.ts` — example scheduled function
 
 ### Phase 6: Polish
 
-1. Build landing page sections (hero, features, CTA)
-2. Add Framer Motion page transitions
-3. Add error boundaries (`error.tsx`) in each route group
-4. Add custom 404 page
-5. Legal page placeholders (terms, privacy)
-6. Complete `.env.local.example` with all variables
-7. Write README with step-by-step setup guide
-8. Document add-on patterns (Composio, Trigger.dev, direct Stripe, file uploads, email, analytics)
+1. Create legal page placeholders (terms, privacy)
+2. Create `config/site.ts`, `config/nav.ts`, `config/plans.ts`
+3. Create `hooks/use-org-subscription.ts` and `hooks/use-feature-gate.ts`
+4. Add error boundaries (`error.tsx`) in each route group
+5. Update `CLAUDE.md` with project architecture context
+6. Update `README.md` with full setup guide
+7. Document add-on patterns (Composio, Trigger.dev, direct Stripe, file uploads, email, analytics)
+
+---
+
+## Tasks
+
+### Phase 1: Fork + Foundation Modifications
+
+- [x] Fork `RayFernando1337/elite-next-clerk-convex-starter` into this repo
+- [x] Install new dependencies: `convex-helpers`, `react-hook-form`, `@hookform/resolvers`, `ai`, `@ai-sdk/anthropic`, `@ai-sdk/openai`
+- [x] Rename `(landing)` route group → `(marketing)`
+- [x] Rename `dashboard` route group → `(app)` (nested under route group)
+- [x] Enable Clerk Organizations in Clerk Dashboard
+- [x] Update Clerk JWT template to include `org_id` and `org_role` claims
+- [x] Update `middleware.ts` to protect `(app)` routes (replace `/dashboard(.*)` matcher)
+- [x] Update `.env.local.example` with new variables
+- [x] Update redirect URLs to route through `/org-selection` after sign-in/sign-up
+
+### Phase 2: Multi-Tenancy Layer
+
+- [x] Extend `convex/schema.ts` — add `organizations`, `projects`, `chatMessages` tables; extend `users` table
+- [x] Create `convex/lib/auth.ts` — `authedQuery`/`authedMutation` wrappers
+- [x] Extend `convex/http.ts` — add `organization.created`, `organization.updated` webhook handlers
+- [x] Create `convex/organizations.ts` — org sync mutations
+- [x] Create `(auth)` route group with sign-in, sign-up, org-selection pages
+- [x] Modify `(app)/layout.tsx` — add org guard (redirect to org-selection if no active org)
+- [x] Modify `app-sidebar.tsx` — add `<OrganizationSwitcher>` component
+- [x] Update `nav-main.tsx` — add Projects, AI, Settings, Admin nav items
+
+### Phase 3: Org-Scoped CRUD (Projects)
+
+- [x] Create `convex/projects.ts` — list, get, create, update, delete using `authedQuery`/`authedMutation`
+- [x] Create Zod schemas for project validation in `lib/` or colocated
+- [x] Create `(app)/projects/page.tsx` — list view reusing TanStack Table patterns from existing `data-table.tsx`, wired to Convex
+- [x] Create `(app)/projects/new/page.tsx` — create form with React Hook Form + Zod
+- [x] Create `(app)/projects/[projectId]/page.tsx` — detail view
+- [x] Create `(app)/projects/[projectId]/edit/page.tsx` — edit form
+- [x] Create `components/forms/project-form.tsx` — shared form component
+- [x] Create `components/shared/empty-state.tsx` and `page-header.tsx`
+- [x] Remove `data.json` mock data from dashboard (or keep for dashboard demo)
+
+### Phase 4: Billing Extension for B2B
+
+- [x] Modify `components/custom-clerk-pricing.tsx` — add `forOrganizations` prop
+- [x] Create `(marketing)/pricing/page.tsx` — dedicated pricing page
+- [x] Update `<Protect>` conditions in `payment-gated/page.tsx` to check org-level plans
+- [x] Create `(app)/settings/billing/page.tsx` — `<OrganizationProfile>` billing tab
+- [x] Create `(app)/settings/members/page.tsx` — `<OrganizationProfile>` members tab
+- [x] Create `(app)/settings/page.tsx` — general org settings
+- [x] Create `(app)/admin/page.tsx` — role-gated admin page with `has({ role: 'org:admin' })`
+
+### Phase 5: AI + Background Jobs
+
+- [x] Create `lib/ai/registry.ts` — provider registry with Anthropic + OpenAI
+- [x] Create `api/ai/chat/route.ts` — `streamText()` streaming endpoint
+- [x] Create `components/ai/chat-interface.tsx` — `useChat()` chat UI
+- [x] Create `(app)/ai/page.tsx` — AI chat page, gated behind `has({ feature: 'ai-chat' })`
+- [x] Create `convex/chatMessages.ts` — message persistence functions
+- [x] Create `convex/crons.ts` — example scheduled function
+
+### Phase 6: Polish
+
+- [x] Create legal page placeholders (terms, privacy)
+- [x] Create `config/site.ts`, `config/nav.ts`, `config/plans.ts`
+- [x] Create `hooks/use-org-subscription.ts` and `hooks/use-feature-gate.ts`
+- [x] Add error boundaries (`error.tsx`) in each route group
+- [x] Update `CLAUDE.md` with project architecture context
+- [x] Update `README.md` with full setup guide
+- [x] Document add-on patterns (Composio, Trigger.dev, direct Stripe, file uploads, email, analytics)
 
 ---
 
 ## 11. "Add When Needed" — Documented, Not Included
 
-These capabilities are documented in the README with setup instructions and example code, but not wired into the starter kit by default to keep it lean.
+These capabilities are documented in the README with setup instructions and example code, but not wired into the starter kit by default.
 
 | Capability | Why Not Included | What's Documented |
 |---|---|---|
@@ -651,17 +834,21 @@ These capabilities are documented in the README with setup instructions and exam
 
 | Decision | Choice | Rationale |
 |---|---|---|
+| Starting point | Fork Elite Kit | Provides 60-70% of what we need with polished UI, saves days of work |
 | Multi-tenancy strategy | Column-level `orgId` on every table | Simplest for Convex, scales to thousands of orgs |
 | Org ID source of truth | Clerk string IDs (not Convex IDs) | Clerk owns org lifecycle, avoids sync issues |
 | Auth in Convex functions | `convex-helpers` custom functions | Officially recommended, eliminates forgotten-filter bugs |
-| Billing default | Clerk Billing (Beta) | Zero webhook code, 5-min setup, perfect for prototypes |
+| Billing default | Clerk Billing (Beta) with `forOrganizations` | Zero webhook code, 5-min setup, perfect for prototypes |
 | Billing escape hatch | Direct Stripe | Documented for production graduation |
 | Simple background jobs | Convex scheduled functions | Built-in, no extra service to manage |
 | Complex background jobs | Trigger.dev v4 (documented add-on) | For when prototypes need workflow orchestration |
 | AI model management | Provider registry pattern | Swap models by changing a string |
-| CSS configuration | Tailwind v4 (CSS-based) | No `tailwind.config.ts`, faster builds |
-| Component library | shadcn/ui (new-york style) | Copy-paste ownership, Radix primitives underneath |
-| Dark mode | next-themes | Standard approach, works with shadcn CSS variable theming |
-| Forms | React Hook Form + Zod | Best DX for complex forms, Zod schemas reusable for validation |
+| CSS configuration | Tailwind v4 with OKLch colors | Inherited from Elite Kit, more modern than HSL |
+| Component library | shadcn/ui (new-york style) + custom animations | 38 components + MagicUI/Motion Primitives inherited |
+| Data tables | TanStack Table + @dnd-kit | Inherited from Elite Kit, production-grade |
+| Charts | Recharts | Inherited from Elite Kit, interactive area charts |
+| Dark mode | next-themes | Inherited from Elite Kit, works with OKLch system |
+| Forms | React Hook Form + Zod | Best DX for complex forms, Zod schemas reusable |
+| Webhook verification | Svix | Inherited from Elite Kit, cryptographic signature checks |
 | Composio | Documented add-on | Not every prototype needs external tool integrations |
-| Marketing pages | Included | Professional first impression for demo presentations |
+| Marketing pages | Inherited + extended | Elite Kit's polished landing page + new pricing/legal |
